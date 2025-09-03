@@ -5,9 +5,9 @@ Aplikasi ini telah di-deploy di PWS: [https://rafa-rally-footballshop.pbp.cs.ui.
 
 ---
 
-## Step-by-Step Implementasi Checklist
+## Step-by-Step Implementasi Tugas 2 (Checklist)
 
-langkah implementasi aplikasi Football Shop saya secara step-by-step:
+langkah implementasi aplikasi football shop saya secara step-by-step:
 
 1. **Membuat Proyek Django Baru**
    - Membuat virtual environment: `python -m venv venv`
@@ -39,7 +39,7 @@ langkah implementasi aplikasi Football Shop saya secara step-by-step:
    - Include `main.urls` di `football_shop/urls.py`
 
 6. **Testing Lokal**
-   - `python manage.py runserver` dan buka `http://127.0.0.1:8000/`
+   - `python manage.py runserver` buka `http://127.0.0.1:8000/`
 
 7. **Deployment ke PWS**
    - Commit ke Git: `git add .` dan `git commit -m "Initial commit"`
@@ -51,15 +51,15 @@ langkah implementasi aplikasi Football Shop saya secara step-by-step:
 
         Client/Browser
               │
-              │ HTTP Request (GET /)
+              │ HTTP Request melakukan get
               ▼
             urls.py
         (routing URL)
               │
-              │ memanggil fungsi view
+              │ memanggil fungsi views.py dalam main
               ▼
            views.py
-       (logic & context)
+           (logic)
               │
               │ mengambil data dari models.py yang berisikan product
               ▼
@@ -109,7 +109,7 @@ langkah implementasi aplikasi Football Shop saya secara step-by-step:
 ---
 
 ## Feedback untuk Asisten Dosen Tutorial 1
-- Materi sudah jelas dan sistematis
+- Materi sudah jelas 
 - Mudah digunakan
 
 ---
