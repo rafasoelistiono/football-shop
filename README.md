@@ -49,44 +49,31 @@ langkah implementasi aplikasi Football Shop saya secara step-by-step:
 
 ## Bagan Request-Response Django
 
-+-------------------+
-|   Client/Browser  |
-+-------------------+
-          |
-          | HTTP Request (GET /)
-          v
-+-------------------+
-|     urls.py       |
-|  (routing URL)    |
-+-------------------+
-          |
-          | memanggil fungsi view
-          v
-+-------------------+
-|     views.py      |
-|  (logic & context)|
-+-------------------+
-          |
-          | mengambil data
-          | models.py yang berisikan product
-          v
-+-------------------+
-|    models.py      |
-|  (database)       |
-+-------------------+
-          |
-          | mengirim data ke template yang berisikan html
-          v
-+-------------------+
-| Template HTML     |
-| (rendered page)   |
-+-------------------+
-          |
-          | HTTP Response (HTML)
-          v
-+-------------------+
-|   Client/Browser  |
-+-------------------+
+        Client/Browser
+              │
+              │ HTTP Request (GET /)
+              ▼
+            urls.py
+        (routing URL)
+              │
+              │ memanggil fungsi view
+              ▼
+           views.py
+       (logic & context)
+              │
+              │ mengambil data dari models.py yang berisikan product
+              ▼
+          models.py
+           (database)
+              │
+              │ mengirim data ke template yang berisikan HTML
+              ▼
+        Template HTML
+        (rendered page)
+              │
+              │ HTTP Response (HTML)
+              ▼
+        Client/Browser
 
 
 **Kaitan tiap komponen:**
@@ -103,7 +90,6 @@ langkah implementasi aplikasi Football Shop saya secara step-by-step:
   - Aplikasi yang terinstall dan fitur yang bertambah (`INSTALLED_APPS`)
   - Menambahkan host yang disetujui web (`ALLOWED_HOST`)
   - Middleware, security, localization, dsb.
-- Semua pengaturan utama proyek dikelola di sini.
 
 ---
 
@@ -118,7 +104,6 @@ langkah implementasi aplikasi Football Shop saya secara step-by-step:
 - Django menyediakan banyak fitur built-in seperti admin, dan url siap pakai
 - Struktur MVT nya jelas sehingga mudah dilakukan pengembangan atau debugging
 - memiliki struktur yang ringkas dan mudah digunakan
-- Cocok untuk prototyping cepat dan pengembangan web nyata
 - fitur testing yang mudah dan cukup lengkap librarynya
 
 ---
