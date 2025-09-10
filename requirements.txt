@@ -6,10 +6,6 @@ requests
 urllib3
 python-dotenv
 
-Username: rafa.rally
-Password: WsuSiaaU07QBr1ojPGVt5NQYWBZxrYGx
-
-
 git remote add pws https://pbp.cs.ui.ac.id/rafa.rally/footballshop
 git branch -M master
 git push pws master
