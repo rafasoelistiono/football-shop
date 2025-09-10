@@ -26,11 +26,9 @@ class Product(models.Model):
 
     @property
     def is_popular(self):
-        """produk populer jika sudah terjual lebih dari 50 kali"""
         return self.sales_count > 50
 
     def increment_sales(self, amount=1):
-        """Tambahkan jumlah penjualan"""
         self.sales_count += amount
         self.save()
 
