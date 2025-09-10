@@ -5,7 +5,3 @@ psycopg2-binary
 requests
 urllib3
 python-dotenv
-
-git remote add pws https://pbp.cs.ui.ac.id/rafa.rally/footballshop
-git branch -M master
-git push pws master
