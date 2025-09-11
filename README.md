@@ -121,6 +121,7 @@ langkah implementasi aplikasi football shop saya secara step-by-step:
 ## Mengapa kita memerlukan *data delivery* dalam pengimplementasian sebuah platform?
 
 Platform merupakan sebuah wadah dimana data dibaca atau ditransfer satu sama lain baik dari sisi server maupun sisi klien, ada kalanya kita perlu mengirimkan data dari satu stack ke stack lainnya. Data yang dikirimkan bisa bermacam-macam bentuknya antara lain XML dan JSON. Hal inilah yang Memudahkan komunikasi antar-komponen (server - frontend - API konsumer) serta mampu memfasilitasi penyimpanan dan pertukaran data dengan format standar. Maka dari itu, mengapa data delivery penting dalam sebuah platform.
+
 ---
 
 ## XML dan JSON mana yang lebih baik.
