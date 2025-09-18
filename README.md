@@ -199,3 +199,68 @@ Django membutuhkan `{% csrf_token %}` untuk melindungi aplikasi dari **Cross-Sit
 4. **JSON Dengan Product ID**
 ![alt text](image-2.png)
 
+---
+
+# Jawaban Pertanyaan Tugas 4
+
+---
+
+## Apa itu Django AuthenticationForm?
+
+Library bawaan django yang digunakan untuk menangani proses login pengguna. Form tersebut menyediakan field username dan password, sekaligus melakukan validasi apakah kombinasi username/password masukan sesuai dengan data user yang terdaftar di database Django (user model).
+
+**Kelebihan**:
+
+* Terintegrasi otomatis dengan sistem autentikasi django
+* Validasi dapat dilakukan otomastis
+* Mudah dalam extend field tambahan
+
+**Kekuranagan**:
+
+* Kurang fleksibel jika ingin membangun sistem login khusus
+* Tidak dilengkapi sistem autentikasi berbasis email
+* Form bawaan yang sederhana
+
+---
+
+## Perbedaan antara Autentikasi dan Otorisasi
+
+**Autentikasi** merupakan tahapan proses memastikan pengguna baik menggunakan password dan username, implementasi di dalam Django cukup sederhana dengan melakukan import `django.contrib.auth` yang menangani login/logout, password hashing, AuthenticationForm, middleware untuk request.user.
+
+**Otorisasi** merupakan tahapan proses menentukan hak akses pengguna terhadap resource tertentu dalam konteks ini, dalam melihat news atau product yang perlu memerlukan role tertentu. implementasi di dalam django dapat dilakukan dengan menambahkan decorator tertentu seperti `@login_required` atau `@permission_required`.
+
+---
+
+## Kelebihan dan kekurangan session dan cookies dalam konteks menyimpan state di aplikasi web
+
+- **session** memeiliki kelebihan yakni data tidak disimpan langsung di browser dan mendukung tipe data yang kompleks. Namun, kekurangan dari session ini memerlukan storage server-side dan lebih banyak resource di server
+
+- **cookies** memiliki kelebihan untuk menyimpan data ylang dapat disimpan browser dalam kasus ini `last_login` yang digunakan untuk melacak aktivitas user terakhir seperti apa. Namun, kekurangan dari cookies ini sangat rentan untuk dicuri dan diubah oleh hacker.
+
+---
+
+## Penggunaan cookies aman secara default?
+
+Cookies tidak sepenuhnya aman karena bisa dicuri atau dimodifikasi jika tidak diatur dengan benar, misalnya tanpa HttpOnly, Secure, atau SameSite. Django mengatasinya dengan proteksi default seperti `SESSION_COOKIE_HTTPONLY`, opsi `SESSION_COOKIE_SECURE` untuk production, token CSRF otomatis, serta dukungan `SESSION_ENGINE` agar session disimpan aman di server.
+
+---
+
+## Implementasi Checklist (Step-by-Step)
+
+1. **Buat Autentikasi**
+   - Melakukan konfigurasi autentikasi dengan mengaktifkan `django.contrib.auth` dan `django.contrib.sessions`.
+   - Setup `urls.py` untuk menambahkan route login/logout serta menambahkan beberapa fungsi pendukung login/logout pada `views.py`.
+   - Menggunakan `AuthenticationForm` didalam view login.
+2. **Meritriksi Halaman News dan Main**
+   - Menggunakan decorator autentikasi
+   - Memasukkan `@login_required(login_url='/login')` diatas fungsi `show_main` dan `show_product`
+3. **Menghubungkan Model Product dengan User**
+   - Melakukan import model user.
+   - Menambahkan `models.ForeignKey`
+   - Melakukan set up fungsi pada `create_product` dengan menambahkan `request.user` di dalam product entry dengan tujuan menghubungkan objek produk dengan penggunanya.
+4. **Menampilkan `last_login` dengan Menerapkan Cookies**
+   - Menambahkan `from django.http import HttpResponseRedirect` dan `from django.urls import reverse` pada `views.py`.
+   - Ubah bagian kode di fungsi login_user untuk menyimpan cookie baru bernama `last_login` yang berisikan timestamp pengguna saat melakukan login terakhir kali. 
+   - Pada `show_main` bagian context tambahkan `'last_login': request.COOKIES.get('last_login', 'Never')`.
+   - Pada `logout_user` tambahkan ` response = HttpResponseRedirect(reverse('main:login'))` dan `response.delete_cookie('last_login')`.
+   - Tambahkan `<h5>Sesi terakhir login: {{ last_login }}</h5>` pada dokumen `templates/main.html`
