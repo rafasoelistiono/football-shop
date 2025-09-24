@@ -33,7 +33,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "rafa-rally-athletelab.pbp.cs.ui.ac.id"]
 CSRF_TRUSTED_ORIGINS = [
-    "https://rafa-rally-footballshop.pbp.cs.ui.ac.id"
+    "https://rafa-rally-athletelab.pbp.cs.ui.ac.id"
 ]
 
 
