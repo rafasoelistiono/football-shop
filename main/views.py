@@ -20,7 +20,7 @@ def show_main(request):
         product_list = Product.objects.filter(user=request.user)
 
     context = {
-        'app_name': 'Football Shop',
+        'app_name': 'AthleteLab',
         'name': 'Rafa Rally Soelistiono',
         'class': 'PBP D',
         'product_list': product_list,
