@@ -264,3 +264,70 @@ Cookies tidak sepenuhnya aman karena bisa dicuri atau dimodifikasi jika tidak di
    - Pada `show_main` bagian context tambahkan `'last_login': request.COOKIES.get('last_login', 'Never')`.
    - Pada `logout_user` tambahkan ` response = HttpResponseRedirect(reverse('main:login'))` dan `response.delete_cookie('last_login')`.
    - Tambahkan `<h5>Sesi terakhir login: {{ last_login }}</h5>` pada dokumen `templates/main.html`
+
+---
+
+# Jawaban Pertanyaan Tugas 5
+
+---
+
+## Urutan prioritas CSS selector
+CSS selector merupakan metode filterisasi dan memanggil objek elemen html tertentu untuk dilakukan `styling` menggunakan css atribute. Dalam melakukan filterisasi terdapat beberapa prioritas khusus yakni:
+1. Inline style `style="color: red;"`
+2. ID selector `#special { color: orange; }`
+3. Class selector `.highlight { color: green; }`
+4. Element selector `p { color: blue; }`
+5. `!important` akan mengalahkan semuanya (jika elemen yang dipanggil tidak ada konflik).
+
+---
+
+## Mengapa `responsive design` penting dalam pengembangan aplikasi web beserta contoh
+Responsive design bertujuan untuk memastikan web terlihat baik di semua perangkat (dekstop,mobile,tablet) agar UI/UX tetap konsisten tanpa mengubah konten melainkan hanya memperbaiki tata letak dan penataan di berbagai device. Sebagian web aplikasi di internet sudah menerapkan prinsip responsive design dengan memanfaatkan berbagai framework dan library css modern seperti; wikipedia, github, dan web app lainnya. Selain itu, ada beberapa yang belum menerapkan responsive design yakni wordpress, craiglist, dan web situs yang tergolong lama (sudah jarang update UI/UX).
+
+---
+
+## Perbedaan margin, border, padding dan cara implementasinya
+1. Margin : ruang luar antara border elemen dengan elemen lain
+2. Border : garis tepi antara padding dan margin
+3. Padding : ruang internal antara konten dan border (bagian dalam kotak)
+### implementasi :
+```
+.selector {
+   padding : 30px;
+   margin : 10px;
+   border : 2px solid #000;
+}
+```
+---
+
+## Konsep `flexbox` dan `grid layout` beserta kegunaannya
+`flexbox` : merupakan mode satu dimensi untuk mendistribusikan ruang antar item dan alignment (vertical centering, spacing otomatis, wrapping). Kegunaan untuk menyusun komponen baris/kolom: navbar, tombol bar, card row, item yang harus fleksibel.
+`grid` : merupakan model dua dimensi untuk mendistribusikan layout halaman (master regions, hero + sidebar + content) dan mampu menyusun kontrol baris/kolom eksplisit. Kegunaan untuk grid gallery, layout kompleks.
+
+---
+
+## Implementasi Checklist (Step-by-Step)
+
+1. **Menambahkan Tailwind ke Aplikasi**
+   - Menambahkan link cdn tailwind ke dalam `base.html`.
+2. **Menambahkan Fitur Edit Product**
+   - Menambahkan fungsi `edit_product` dan menambahkan beberapa pemanggilan model yang dibuat.
+   - Menambahkan `urls` pada `urls.py`.
+   - Menambahkan `templates.html` pada `templates` dan menyesuaikan beberapa model yang dibuat.
+3. ***Menambahkan Fitur Delete Product**
+   - Menambahkan fungsi `delete_product` dan menambahkan beberapa pemanggilan model yang dibuat.
+   - Menambahkan `urls` pada `urls.py`.
+   - Menambahkan `templates.html` pada `templates` dan menyesuaikan beberapa model yang dibuat.
+4. **Menambahkan Navigation Bar pada Aplikasi**
+   - Melakukan penambahan deteksi kategori by `badges` di dalam fungsi `show_main`.
+   - Menambahkan `navbar.html` pada bagian main/templates.
+   - Melakukan penaambahan beberapa atribut tombol filterisasi by category pada `navbar.html`.
+5. **Menambahkan Static Files pada Aplikasi**
+   - Menambahkan `middleware Whitenose` ke dalam settings.py.
+   - Menambahkan  `STATIC_ROOT`, `STATICFILES_DIRS`, dan `STATIC_URL` ke dalam settings.py.
+6. **Styling Aplikasi**
+   - Menambahkan `global.css` ke dalam static files
+   - Menghubungkan `global.css` ke dalam `base.html`
+   - Melakukan perubahan styling pada sisi tata letak dan warna pada `main.html`, `login.html`, dan `register.html`
+
+---
