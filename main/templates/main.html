@@ -16,7 +16,13 @@
       <p class="text-gray-600">Stay updated with the latest football stuff</p>
     </div>
 
-    <!-- Filter Section -->
+
+    <!-- Button to open modal -->
+    <button onclick="showModal()" class="inline-flex items-center px-4 py-2 bg-white text-green-600 font-semibold outline outline-2 outline-green-600 outline-offset-[-2px] rounded-md hover:bg-green-600 hover:text-white transition-colors mb-4">
+      Create Product by AJAX
+    </button>
+
+    <!-- Filter Section
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
       <div class="flex space-x-3 mb-4 sm:mb-0">
         <a href="?" class="{% if request.GET.filter == 'all' or not request.GET.filter  %} bg-green-600 text-white{% else %}bg-white text-gray-700 border border-gray-300{% endif %} px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white">
@@ -31,27 +37,259 @@
           Last login: {{ last_login }}
         </div>
       {% endif %}
-    </div>
+    </div> -->
 
-    <!-- News Grid -->
-    {% if not product_list %}
-      <div class="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <div class="w-32 h-32 mx-auto mb-4">
-          <img src="{% static 'image/no-news.png' %}" alt="No news available" class="w-full h-full object-contain">
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No product found</h3>
-        <p class="text-gray-500 mb-6">Be the first to share your football stuff with the community.</p>
-        <a href="{% url 'main:create_product' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
-          Create Product
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 bg-white rounded-lg border border-gray-200 p-4">
+      <div class="flex space-x-3 mb-4 sm:mb-0">
+        <a id="filter-all" class="bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700">
+          All Product
+        </a>
+        <a id="filter-my" class="bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white">
+          My Product
         </a>
       </div>
-    {% else %}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for product in product_list %}
-          {% include 'card_product.html' with product=product %}
-        {% endfor %}
+      {% if user.is_authenticated %}
+        <div class="text-sm text-gray-500">Last login: {{ last_login }}</div>
+      {% endif %}
+    </div>
+
+    <!-- Loading State -->
+    <div id="loading" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
+      <svg class="animate-spin h-8 w-8 text-green-600 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      <p class="text-gray-600 mt-3">Loading news...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="hidden"></div>
+
+    <!-- News Grid -->
+    <div id="grid" class="hidden"></div>
+
+    <!-- Empty State -->
+    <div id="empty" class="bg-white rounded-lg border border-gray-200 p-12 text-center hidden">
+      <div class="w-32 h-32 mx-auto mb-4">
+        <img src="{% static 'image/no-news.png' %}" alt="No news available" class="w-full h-full object-contain">
       </div>
-    {% endif %}
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No product found</h3>
+      <p class="text-gray-500 mb-6">Be the first to share football product with the community.</p>
+      <a href="{% url 'main:create_product' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+        Create Product
+      </a>
+    </div>
   </div>
 </div>
+
+<script>
+  const PRODUCT_API_ENDPOINT = "{% url 'main:show_json' %}";
+  const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+
+  const loadingSpinner = document.getElementById('loading');
+  const errorMessage = document.getElementById('error');
+  const emptyStateDisplay = document.getElementById('empty');
+  const newsProductContainer = document.getElementById('grid');
+  const showAllProductButton = document.getElementById('filter-all');
+  const showMyProductButton = document.getElementById('filter-my');
+
+  let activeFilter = 'all';
+  let allProductData = [];
+
+  // Update filter button appearance
+  function updateFilterButtonsAppearance() {
+    if (!showAllProductButton || !showMyProductButton) return;
+    
+    if (activeFilter === 'all') {
+      showAllProductButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700';
+      showMyProductButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white';
+    } else {
+      showMyProductButton.className = 'bg-green-600 text-white px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-700';
+      showAllProductButton.className = 'bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md font-medium transition-colors hover:bg-green-600 hover:text-white';
+    }
+  }
+
+  // Show/hide page sections
+  function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+    loadingSpinner.classList.toggle('hidden', !showLoading);
+    errorMessage.classList.toggle('hidden', !showError);
+    emptyStateDisplay.classList.toggle('hidden', !showEmpty);
+    newsProductContainer.classList.toggle('hidden', !showGrid);
+    
+    // Add grid classes when showing grid
+    if (showGrid) {
+      newsProductContainer.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+    }
+  }
+
+  // Get readable category name
+  function getReadableCategoryName(categoryCode) {
+    const categoryMapping = {
+      jersey : 'Jersey',
+      boots: 'Boots',
+      ball: 'Ball',
+      accessory: 'Accessories',
+      merch: 'Merchandise',
+    };
+    return categoryMapping[categoryCode] || categoryCode;
+  }
+
+  // Create news card element
+  function buildProductCardElement(productItem) {
+    const articleElement = document.createElement('article');
+    articleElement.className = 'bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col h-full';
+
+    const detailLink = `{% url 'main:show_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', productItem.id);
+    const editLink = `{% url 'main:edit_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', productItem.id);
+    const deleteLink = `{% url 'main:delete_product' '00000000-0000-0000-0000-000000000000' %}`.replace('00000000-0000-0000-0000-000000000000', productItem.id);
+
+    const categoryLabel = getReadableCategoryName(productItem.category);
+    const isFeatured = productItem.is_featured;
+    const isHot = productItem.sales_count > 20;
+
+    const thumbnailHtml = productItem.thumbnail 
+      ? `<img src='${productItem.thumbnail}' alt='${productItem.name}' class='w-full h-full object-cover'>` 
+      : `<div class='w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center'></div>`;
+
+    const featuredBadge = isFeatured 
+      ? `<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800'>Featured</span>` 
+      : '';
+    const hotBadge = isHot 
+      ? `<span class='inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800'>Hot</span>` 
+      : '';
+
+    const editDeleteButtons = CURRENT_USER_ID && Number(CURRENT_USER_ID) === Number(productItem.user_id)
+      ? `<div class='flex space-x-2'>
+          <button 
+            class='text-gray-600 hover:text-gray-700 text-sm transition-colors edit-btn' 
+            onclick='openUpdateModal(${JSON.stringify(productItem)})'>Edit</button>
+          <button
+            class='text-red-600 hover:text-red-700 text-sm transition-colors delete-btn' 
+            data-id='${productItem.id}' 
+            data-url='${deleteLink}'>Delete
+          </button>
+        </div>`
+      : '';
+
+
+    const completeCardHtml = `
+      <div class="aspect-[16/9] relative overflow-hidden">
+        ${thumbnailHtml}
+        <div class="absolute top-3 left-3">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-green-600 text-white">${categoryLabel}</span>
+        </div>
+        <div class="absolute top-3 right-3 flex space-x-2">
+          ${featuredBadge}
+          ${hotBadge}
+        </div>
+      </div>
+      <div class="p-5 flex flex-col flex-1">
+        <div class="flex items-center text-sm text-gray-500 mb-3">
+          <span class="mx-2">•</span>
+          <span>${productItem.rating} rating</span>
+          <span> | </span>
+          <span>${productItem.sales_count} sales</span>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 leading-tight">
+          <a href="${detailLink}" class="hover:text-green-600 transition-colors">${productItem.name}</a>
+        </h3>
+        <p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">${productItem.description}</p>
+        <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+          <a href="${detailLink}" class="text-green-600 hover:text-green-700 font-medium text-sm transition-colors">Read more</a>
+          ${editDeleteButtons}
+        </div>
+      </div>
+    `;
+
+    articleElement.innerHTML = completeCardHtml;
+    return articleElement;
+  }
+
+  // Render all news cards
+  function renderAllProductCards(productItems) {
+    newsProductContainer.innerHTML = '';
+    productItems.forEach(productItem => {
+      const cardElement = buildProductCardElement(productItem);
+      newsProductContainer.appendChild(cardElement);
+    });
+    attachDeleteListeners(); // tambahkan listener
+  }
+
+  // Filter and display news
+  function filterAndDisplayProduct() {
+    updateFilterButtonsAppearance();
+    
+    const filteredProduct = activeFilter === 'all' 
+      ? allProductData 
+      : allProductData.filter(product => Number(product.user_id) === Number(CURRENT_USER_ID));
+    
+    if (filteredProduct.length === 0) {
+      displayPageSection({ showEmpty: true });
+    } else {
+      renderAllProductCards(filteredProduct);
+      displayPageSection({ showGrid: true });
+    }
+  }
+
+  // Fetch news data from server
+  async function fetchProductFromServer() {
+    try {
+      displayPageSection({ showLoading: true });
+      
+      const response = await fetch(PRODUCT_API_ENDPOINT, {
+        headers: { 'Accept': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch product data from server');
+      }
+
+      const productData = await response.json();
+      allProductData = productData || [];
+      
+      filterAndDisplayProduct();
+    } catch (error) {
+      console.error('Error loading product:', error);
+      displayPageSection({ showError: true });
+    }
+  }
+
+  // Event handlers
+  function handleShowAllProductClick() {
+    activeFilter = 'all';
+    filterAndDisplayProduct();
+  }
+
+  function handleShowMyProductClick() {
+    activeFilter = 'my';
+    filterAndDisplayProduct();
+  }
+
+  // Initialize page
+  function initializeProductPage() {
+    showAllProductButton.addEventListener('click', handleShowAllProductClick);
+    showMyProductButton.addEventListener('click', handleShowMyProductClick);
+    
+    fetchProductFromServer();
+  }
+
+  // Start application
+  initializeProductPage();
+
+  document.addEventListener('productAdded', function() {
+      // Refresh data without page reload
+      fetchProductFromServer();
+  });
+
+  function attachDeleteListeners() {
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const url = this.getAttribute('data-url');
+        const id = this.getAttribute('data-id');
+        openDeleteModal(url, id); // pakai AJAX mode
+      });
+    });
+  }
+
+</script>
 {% endblock content %}
