@@ -17,18 +17,8 @@
     <!-- Load script JS toast -->
     <script src="{% static 'js/toast.js' %}"></script>
 
-    {% if messages %}
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        {% for message in messages %}
-          showToast(
-            "{{ message.tags|capfirst }}",
-            "{{ message|escapejs }}",
-            "{{ message.tags }}"
-          );
-        {% endfor %}
-      });
+        window.CSRF_TOKEN = "{{ csrf_token }}";
     </script>
-    {% endif %}
 </body>
 </html>

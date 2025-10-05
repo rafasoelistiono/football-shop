@@ -113,43 +113,60 @@ def show_json_by_id(request, product_id):
    except Product.DoesNotExist:
         return HttpResponse({'detail' :'Not Found'},status=404)
    
-def register(request):
-    form = UserCreationForm()
-
+@csrf_exempt
+def register_ajax(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Your account has been successfully created!')
-            return redirect('main:login')
-    context = {'form':form}
-    return render(request, 'register.html', context)
+            return JsonResponse({'success': True, 'redirect': reverse('main:login')})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
-def login_user(request):
-   if request.method == 'POST':
-      form = AuthenticationForm(data=request.POST)
 
-      if form.is_valid():
-        user = form.get_user()
-        login(request, user)
-        messages.success(request, f'Welcome back, {user.username}!')
-        response = HttpResponseRedirect(reverse("main:show_main"))
-        response.set_cookie('last_login', str(datetime.datetime.now()))
+@csrf_exempt
+def login_ajax(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            response = JsonResponse({
+                "success": True,
+                "message": f"Welcome back, {user.username}!",
+                "redirect": "/"
+            })
+            response.set_cookie('last_login', str(datetime.datetime.now()))
+            response.set_cookie('auth_user', user.username)
+            return response
+        else:
+            return JsonResponse({
+                "success": False,
+                "message": "Invalid username or password."
+            }, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+
+@csrf_exempt
+def logout_ajax(request):
+    if request.method == "POST":
+        logout(request)
+        response = JsonResponse({
+            "success": True,
+            "message": "You have been logged out successfully!",
+            "redirect": reverse('main:login'),
+        })
+        response.delete_cookie('last_login')
+        response.delete_cookie('auth_user')
         return response
-      else:
-        messages.error(request, 'Invalid username or password.')
-
-   else:
-      form = AuthenticationForm(request)
-   context = {'form': form}
-   return render(request, 'login.html', context)
-
-def logout_user(request):
-    logout(request)
-    messages.info(request, 'You have been logged out successfully!')
-    response = HttpResponseRedirect(reverse('main:login'))
-    response.delete_cookie('last_login')
-    return response
+    
+    return JsonResponse({"error": "Invalid request method"}, status=400)
 
 def edit_product(request, id):
     news = get_object_or_404(Product, pk=id)
@@ -233,3 +250,10 @@ def edit_product_ajax(request, id):
     return JsonResponse({"error": "Invalid request"}, status=400)
 
 
+# Halaman login (hanya render template)
+def login_page(request):
+    return render(request, "login.html")
+
+# Halaman register (hanya render template)
+def register_page(request):
+    return render(request, "register.html")
