@@ -87,6 +87,7 @@ document.getElementById("login-form").addEventListener("submit", async function(
     showToast("Login Failed", data.error || "Invalid credentials", "error");
   }
 });
+
 document.addEventListener("DOMContentLoaded", () => {
   const cookies = document.cookie.split(";").reduce((acc, c) => {
     const [key, value] = c.trim().split("=");
